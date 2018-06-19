@@ -17,6 +17,8 @@ The library currently provides the following helper functions:
   Makes scripts more robust by setting various shell options.
 - `cmn_assert_running_as_root` &ndash; makes sure that the script is run as
   root.
+- `cmn_assert_env_not_empty` &ndash; makes sure that an environment variable
+  is set and not empty.
 
 ### Printing to the Screen
 
@@ -24,6 +26,8 @@ The library currently provides the following helper functions:
 - `cmn_echo_important` &ndash; prints message of higher importance in yellow
   letters.
 - `cmn_echo_warn` &ndash; prints warning in red letters.
+- `cmn_log` &ndash; writes simple message with date prefix in format
+  `+%Y-%m-%d %H:%M:%S`.
 
 ### Error Handling
 
@@ -57,6 +61,10 @@ The library currently provides the following helper functions:
   INI file parser".
 - `cmn_assert_ini_variables_exist` &ndash; makes sure that the given INI
   variables exist and provides feedback to the user if not.
+
+### String manipulation
+
+- `cmn_slugify` &ndash; slugifies the given string
 
 Note prefix `cmn_` which is supposed to avoid clashes with the names of
 functions defined in your script or in any other included script.

@@ -682,3 +682,42 @@ function read_ini()
 
 	cleanup_bash
 }
+
+###############################################################################
+# PENBASE common functions contribution
+###############################################################################
+
+# cmn_slugify some_text
+#
+# Slugifies a text.
+#
+# Example:
+# MYVAR="$(cmn_slugify "Some text * with weird @ characters !")"
+#
+function cmn_slugify {
+    echo "$1" | iconv -t ascii//TRANSLIT | sed -r s/[~\^]+//g | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z
+}
+
+# cmn_assert_env_not_empty env_var_name
+#
+# Asserts an environment variable is set and not empty, otherwise die.
+#
+# Example:
+# cmn_assert_env_not_empty "MY_ENV_VAR"
+#
+function cmn_assert_env_not_empty() {
+    if [ -z "${!1+x}" ]; then
+        cmn_die "missing required environment variable $1"
+    fi
+}
+
+# cmn_log some_message
+#
+# Echo some message with date prefix in format "+%Y-%m-%d %H:%M:%S".
+#
+# Example:
+# cmn_log "some log message"
+#
+function cmn_log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+}
