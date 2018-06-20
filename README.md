@@ -26,7 +26,7 @@ The library currently provides the following helper functions:
 - `cmn_echo_important` &ndash; prints message of higher importance in yellow
   letters.
 - `cmn_echo_warn` &ndash; prints warning in red letters.
-- `cmn_log` &ndash; writes simple message with date prefix in format
+- `cmn_log` &ndash; prints a simple message with a date prefix using format
   `+%Y-%m-%d %H:%M:%S`.
 
 ### Error Handling
