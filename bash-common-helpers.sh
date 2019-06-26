@@ -65,9 +65,7 @@ function cmn_assert_running_as_root {
 # cmn_echo_info "Task completed."
 #
 function cmn_echo_info {
-  local green=$(tput setaf 2)
-  local reset=$(tput sgr0)
-  echo -e "${green}$@${reset}"
+	cmn_echo_term "2" "$@"
 }
 
 # cmn_echo_important message ...
@@ -78,9 +76,7 @@ function cmn_echo_info {
 # cmn_echo_important "Please complete the following task manually."
 #
 function cmn_echo_important {
-  local yellow=$(tput setaf 3)
-  local reset=$(tput sgr0)
-  echo -e "${yellow}$@${reset}"
+	cmn_echo_term "3" "$@"
 }
 
 # cmn_echo_warn message ...
@@ -91,9 +87,7 @@ function cmn_echo_important {
 # cmn_echo_warn "There was a failure."
 #
 function cmn_echo_warn {
-  local red=$(tput setaf 1)
-  local reset=$(tput sgr0)
-  echo -e "${red}$@${reset}"
+	cmn_echo_term "1" "$@"
 }
 
 #
@@ -108,11 +102,11 @@ function cmn_echo_warn {
 # Example:
 # cmn_die "An error occurred."
 #
+CMN_DIE=0
 function cmn_die {
-  local red=$(tput setaf 1)
-  local reset=$(tput sgr0)
-  echo >&2 -e "${red}$@${reset}"
-  exit 1
+	CMN_DIE=1
+	cmn_echo_term "1" "$@"
+	exit 1
 }
 
 #
@@ -427,7 +421,7 @@ function read_ini()
 			return 1
 		fi
 	}
-	
+
 	function check_ini_file()
 	{
 		if [ ! -r "$INI_FILE" ] ;then
@@ -436,7 +430,7 @@ function read_ini()
 			return 1
 		fi
 	}
-	
+
 	# enable some optional shell behavior (shopt)
 	function pollute_bash()
 	{
@@ -448,7 +442,7 @@ function read_ini()
 		fi
 		shopt -q -s ${SWITCH_SHOPT}
 	}
-	
+
 	# unset all local functions and restore shopt settings before returning
 	# from read_ini()
 	function cleanup_bash()
@@ -456,7 +450,7 @@ function read_ini()
 		shopt -q -u ${SWITCH_SHOPT}
 		unset -f check_prefix check_ini_file pollute_bash cleanup_bash
 	}
-	
+
 	local INI_FILE=""
 	local INI_SECTION=""
 
@@ -542,7 +536,7 @@ function read_ini()
 		cleanup_bash
 		return 0
 	fi
-	
+
 	if ! check_ini_file ;then
 		cleanup_bash
 		return 1
@@ -562,16 +556,16 @@ function read_ini()
 	local LINE_NUM=0
 	local SECTIONS_NUM=0
 	local SECTION=""
-	
+
 	# IFS is used in "read" and we want to switch it within the loop
 	local IFS=$' \t\n'
 	local IFS_OLD="${IFS}"
-	
+
 	# we need some optional shell behavior (shopt) but want to restore
 	# current settings before returning
 	local SWITCH_SHOPT=""
 	pollute_bash
-	
+
 	while read -r line || [ -n "$line" ]
 	do
 #echo line = "$line"
@@ -620,7 +614,7 @@ function read_ini()
 		IFS="="
 		read -r VAR VAL <<< "${line}"
 		IFS="${IFS_OLD}"
-		
+
 		# delete spaces around the equal sign (using extglob)
 		VAR="${VAR%%+([[:space:]])}"
 		VAL="${VAL##+([[:space:]])}"
@@ -667,7 +661,7 @@ function read_ini()
 				;;
 			esac
 		fi
-		
+
 
 		# enclose the value in single quotes and escape any
 		# single quotes and backslashes that may be in the value
@@ -676,7 +670,7 @@ function read_ini()
 
 		eval "$VARNAME=$VAL"
 	done  <"${INI_FILE}"
-	
+
 	# return also the number of parsed sections
 	eval "$INI_NUMSECTIONS_VARNAME=$SECTIONS_NUM"
 
@@ -684,7 +678,10 @@ function read_ini()
 }
 
 ###############################################################################
+# Copyright (c) 2019 Penbase
 # PENBASE common functions contribution
+# Released under the MIT License (MIT)
+# https://github.com/Penbase/bash-common-helpers/blob/master/LICENSE
 ###############################################################################
 
 # cmn_slugify some_text
@@ -720,4 +717,30 @@ function cmn_assert_env_not_empty() {
 #
 function cmn_log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+}
+
+# cmn_echo_info color_index message ...
+#
+# Writes the given messages in the specified TERM color_index to standard output.
+# If the current terminal does not support colours, fallbacks to a simple echo
+#
+function cmn_echo_term() {
+	ncolors=0
+	if [ "${TERM}" != "unknown" ]; then
+		ncolors="$(tput colors)"
+	fi
+	if [ -n "${ncolors}" ] && [ "${ncolors}" -ge "8" ]; then
+		local reset=$(tput sgr0)
+		local color="$(tput setaf ${1})"
+		shift
+		output="${color}$@${reset}"
+	else
+		shift
+		output="$@"
+	fi
+	if [ -n "${CMN_DIE}" ] && [ "${CMN_DIE}" -eq "1" ]; then
+		echo >&2 -e "${output}"
+	else
+		echo -e "${output}"
+	fi
 }
