@@ -155,6 +155,10 @@ Actually, the library includes that parser for reasons of convenience.
 Last but not least, the library contains valuable knowledge and experience
 of coworkers who showed my one or two tricks.
 
+The [Penbase](https://github.com/Penbase) github organization also contributed
+to this helper script with new or enhanced functions with their own
+[fork](https://github.com/Penbase/bash-common-helpers).
+
 ## License
 
 Released under the MIT License (MIT) &ndash; see file LICENSE in this software's
