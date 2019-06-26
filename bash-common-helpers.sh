@@ -65,8 +65,7 @@ function cmn_assert_running_as_root {
 # cmn_echo_info "Task completed."
 #
 function cmn_echo_info {
-	local green=$(tput setaf 2)
-	cmn_echo_term "${green}" "$@"
+	cmn_echo_term "2" "$@"
 }
 
 # cmn_echo_important message ...
@@ -77,8 +76,7 @@ function cmn_echo_info {
 # cmn_echo_important "Please complete the following task manually."
 #
 function cmn_echo_important {
-  local yellow=$(tput setaf 3)
-	cmn_echo_term "${yellow}" "$@"
+	cmn_echo_term "3" "$@"
 }
 
 # cmn_echo_warn message ...
@@ -89,9 +87,7 @@ function cmn_echo_important {
 # cmn_echo_warn "There was a failure."
 #
 function cmn_echo_warn {
-  local red=$(tput setaf 1)
-  local reset=$(tput sgr0)
-	cmn_echo_term "${red}" "$@"
+	cmn_echo_term "1" "$@"
 }
 
 #
@@ -106,11 +102,11 @@ function cmn_echo_warn {
 # Example:
 # cmn_die "An error occurred."
 #
+CMN_DIE=0
 function cmn_die {
-  local red=$(tput setaf 1)
-  local reset=$(tput sgr0)
-  echo >&2 -e "${red}$@${reset}"
-  exit 1
+	CMN_DIE=1
+	cmn_echo_term "1" "$@"
+	exit 1
 }
 
 #
@@ -723,9 +719,9 @@ function cmn_log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
 }
 
-# cmn_echo_info color message ...
+# cmn_echo_info color_index message ...
 #
-# Writes the given messages in the specified TERM color to standard output.
+# Writes the given messages in the specified TERM color_index to standard output.
 # If the current terminal does not support colours, fallbacks to a simple echo
 #
 function cmn_echo_term() {
@@ -735,11 +731,16 @@ function cmn_echo_term() {
 	fi
 	if [ -n "${ncolors}" ] && [ "${ncolors}" -ge "8" ]; then
 		local reset=$(tput sgr0)
-		local color="${1}"
+		local color="$(tput setaf ${1})"
 		shift
-		echo -e "${color}$@${reset}"
+		output="${color}$@${reset}"
 	else
 		shift
-		echo -e "$@"
+		output="$@"
+	fi
+	if [ -n "${CMN_DIE}" ] && [ "${CMN_DIE}" -eq "1" ]; then
+		echo >&2 -e "${output}"
+	else
+		echo -e "${output}"
 	fi
 }
