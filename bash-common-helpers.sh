@@ -726,6 +726,7 @@ function cmn_log() {
 #
 function cmn_echo_term() {
 	ncolors=0
+	TERM="${TERM:-unknown}"
 	if [ "${TERM}" != "unknown" ]; then
 		ncolors="$(tput colors)"
 	fi
