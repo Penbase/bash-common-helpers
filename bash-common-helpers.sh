@@ -1,6 +1,10 @@
+#!/usr/bin/env bash
+
 # Copyright (c) 2014 Martin Burger
 # Released under the MIT License (MIT)
 # https://github.com/martinburger/bash-common-helpers/blob/master/LICENSE
+
+# Some fork contributions are copyright (c) 2019 Penbase
 
 ################################################################################
 #
@@ -727,8 +731,8 @@ function cmn_log() {
 function cmn_echo_term() {
 	ncolors=0
 	TERM="${TERM:-unknown}"
-	if [ "${TERM}" != "unknown" ]; then
-		ncolors="$(tput colors)"
+	if [ "${TERM}" != "unknown" ] && [ -n "${TERM}" ]; then
+		! ncolors="$(tput colors)"
 	fi
 	if [ -n "${ncolors}" ] && [ "${ncolors}" -ge "8" ]; then
 		local reset=$(tput sgr0)
